@@ -7,8 +7,8 @@ ui_print() {
 }
 
 ui_print "************************************"
-ui_print "*   Oppo Messages Enabler v2.0     *"
-ui_print "*        By Antigravity            *"
+ui_print "*   Oppo Messages Enabler v1.0.3   *"
+ui_print "*        By quyetbkhoa             *"
 ui_print "************************************"
 
 if [ -f /data/adb/magisk/util_functions.sh ]; then
@@ -19,5 +19,9 @@ elif [ -f /data/adb/ap/util_functions.sh ]; then
   . /data/adb/ap/util_functions.sh
 fi
 
+if ! command -v install_module >/dev/null 2>&1; then
+  ui_print "! Install through a supported root manager."
+  exit 1
+fi
 install_module
-exit 0
+exit $?

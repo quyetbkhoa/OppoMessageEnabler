@@ -1,51 +1,52 @@
 # Oppo Messages Enabler
 
-A Magisk / KernelSU / APatch module to enable native **Oppo Messages** (`com.android.mms`) and replace Google Messages on ColorOS, OxygenOS, and Realme UI devices.
+Module Magisk / KernelSU / APatch mở chặn Oppo Messages (`com.android.mms`) và Mind Pilot (`com.oplus.aiassistant`) trên ROM có sẵn các ứng dụng này. Bản **v1.0.3** chỉ bật hai package trong danh sách cho phép; không chép cấu hình của phân vùng này sang phân vùng khác.
 
----
+[Tải v1.0.3](https://github.com/quyetbkhoa/OppoMessageEnabler/releases/tag/v1.0.3) · [Changelog](CHANGELOG.md) · [Phân tích lỗi bản cũ](docs/BUG_ANALYSIS.md)
 
-## 📱 Tested Device
-- **Device**: OnePlus 15
-- **ROM**: India (IN) `16.0.1.60x` (ColorOS 16 / OxygenOS 16)
-- **Status**: ✅ Hoạt động hoàn hảo 100% (SMS/OTP, cuộc gọi, âm báo, thông báo nổi, icon UXIcons chính chủ)
+## Thiết bị đã kiểm tra
 
----
+| Mục | Kết quả |
+| --- | --- |
+| Thiết bị | OnePlus CPH2745 |
+| ROM | `CPH2745_16.0.10.601(EX01)` |
+| Root manager | KernelSU-Next |
+| Sau reboot | Oppo Messages và Mind Pilot được nhận, không bị tắt; Mind Space, Omoji và Quick Share extension vẫn có sẵn |
+| Đối chiếu trước/sau v1.0.3 | Chỉ thêm Mind Pilot; không mất package; danh sách ứng dụng bị tắt và lựa chọn SMS giữ nguyên trên user 0/998/999 |
 
-## 🌟 Tính năng nổi bật / Features
+Đã kiểm tra trạng thái ứng dụng và cấu hình sau reboot. Chưa kiểm thử gửi/nhận SMS/OTP hoặc tác vụ AI bên trong Mind Pilot. Magisk, APatch và ROM khác cần kiểm tra riêng.
 
-- **Mở khóa Tin nhắn gốc (Oppo Messages)**: Gỡ bỏ quy tắc chặn trong file cấu hình `app_v2.xml` của hệ thống bằng phương pháp `mount --bind` an toàn, không can thiệp vật lý vào phân vùng hệ thống (read-only).
-- **Hỗ trợ đa phân vùng (Universal Partition Support)**: Tự động phát hiện và bind-mount trên mọi phân vùng (`/my_stock`, `/my_product`, `/my_heytap`, `/odm`).
-- **Thay thế hoàn toàn Google Messages**: Tự động vô hiệu hóa Google Messages để tránh xung đột thông báo và trùng lặp trình xử lý SMS.
-- **Tương thích tính năng Nhân bản ứng dụng (App Cloner / MultiApp)**: Tự động quét tất cả User Profile (`User 0`, `User 998`, `User 999`) và vô hiệu hóa Google Messages triệt để, không lo bị sinh icon "Tin nhắn 1", "Tin nhắn 2" bản sao.
-- **Tự động cấp quyền SMS mặc định**: Tự động thiết lập Oppo Messages làm ứng dụng SMS mặc định của hệ thống (`android.app.role.SMS`) ngay khi boot.
-- **An toàn tuyệt đối**: Gỡ module là máy tự động quay về nguyên bản 100%.
+## Phạm vi thay đổi
 
----
+- Mỗi lần boot, đọc `app_v2.xml` gốc của từng phân vùng, chỉ đổi thẻ `disable` của **`com.android.mms`** và **`com.oplus.aiassistant`** thành `enable`, giữ nguyên thuộc tính và các nội dung khác.
+- Chỉ bind-mount file có thay đổi; giữ nguyên `/my_product` nếu file này không chặn Oppo Messages.
+- Giữ nguyên toàn bộ `feature_rsa*.xml`, Mind Space, Omoji và các quy tắc OEM khác.
+- Đặt Oppo Messages làm SMS mặc định cho user 0 một lần. Không tắt Google Messages, không thay đổi hồ sơ nhân bản hoặc hồ sơ công việc.
+- Khi nâng cấp từ bản đã cài, giữ lựa chọn SMS hiện tại, không chạy lại bước đặt mặc định.
+- Không xóa package cache hoặc dữ liệu ứng dụng. Định dạng quy tắc SMS chưa hỗ trợ sẽ được bỏ qua thay vì thay bằng cấu hình cố định.
 
-## 📋 Yêu cầu / Requirements
+## Cài đặt / cập nhật
 
-1. Thiết bị **Oppo**, **OnePlus** hoặc **Realme** chạy **ColorOS 14/15/16**, **OxygenOS 14/15/16**, hoặc **Realme UI 5.0/6.0**.
-2. Thiết bị đã được root bằng một trong các công cụ:
-   - **KernelSU** / **KernelSU-Next**
-   - **APatch**
-   - **Magisk**
+1. Tải [Oppo_Messages_Enabler_v1.0.3.zip](https://github.com/quyetbkhoa/OppoMessageEnabler/releases/download/v1.0.3/Oppo_Messages_Enabler_v1.0.3.zip).
+2. Cài ZIP qua trình quản lý root rồi khởi động lại; không giải nén hoặc chép XML thủ công vào hệ thống.
+3. Kiểm tra Mind Pilot, Mind Space, Omoji và Oppo Messages sau khi máy khởi động xong.
+4. Nếu cần đổi ứng dụng SMS, dùng Settings. Module không ép lại lựa chọn trên mỗi lần boot.
 
----
+Bản cũ đã tắt Google Messages bằng Package Manager trên nhiều user; tắt/gỡ module không tự hoàn tác trạng thái này. Muốn khôi phục Google Messages về trạng thái mặc định, chạy với root cho từng user bị ảnh hưởng, ví dụ `pm default-state --user 0 com.google.android.apps.messaging` (máy có hồ sơ 998/999 cần thực hiện riêng). Không bật hàng loạt ứng dụng khác: nhiều quy tắc chặn đã có sẵn từ ROM.
 
-## 🚀 Hướng dẫn cài đặt / Installation
+Tắt/gỡ bản mới rồi reboot sẽ bỏ lớp ghi đè XML. Quyền SMS mặc định và trạng thái bật Oppo Messages là cài đặt được lưu bởi Android; có thể đổi lại trong Settings.
 
-1. Tải file zip `Oppo_Messages_Enabler_v1.0.1.zip` từ mục **[Releases](https://github.com/quyetbkhoa/OppoMessageEnabler/releases)**.
-2. Mở trình quản lý root (**KernelSU** / **APatch** / **Magisk**).
-3. Vào tab **Mô-đun (Modules)** -> Chọn **Cài đặt từ bộ nhớ (Install from storage)**.
-4. Chọn file zip vừa tải về.
-5. Sau khi cài đặt hoàn tất, nhấn **Khởi động lại (Reboot)** điện thoại.
-6. Sau khi máy khởi động lại:
-   - Vào ứng dụng **Tin nhắn** lần đầu và nhấn **Đồng ý** điều khoản dịch vụ của Oppo.
-   - Thưởng thức giao diện Tin nhắn thuần ColorOS mượt mà, hỗ trợ giao diện gốc của máy!
+## Kiểm tra và build
 
----
+```sh
+python -m unittest discover -s tests -v
+python tools/build.py
+```
 
-## 👤 Tác giả / Author
-- **Author**: `quyetbkhoa`
-- **GitHub**: [quyetbkhoa](https://github.com/quyetbkhoa)
-- **Repository**: [OppoMessageEnabler](https://github.com/quyetbkhoa/OppoMessageEnabler)
+Build tạo ZIP cài đặt và file `.zip.sha256` để đối chiếu SHA-256. ZIP chỉ chứa script, bộ vá và metadata của module; không kèm APK, cấu hình ROM trích xuất hay dữ liệu chẩn đoán.
+
+`tools/audit_device.py` và `tools/verify_device.py` dành riêng cho máy KernelSU đang kết nối qua ADB, có các file được liệt kê trong mã. Chúng dùng BusyBox mount namespace riêng để đọc ROM gốc và thử bind-mount, rồi kiểm tra bảng mount của PID 1 không thay đổi. Không thay thế kiểm tra sau reboot.
+
+`tools/restore_live_device.py` là công cụ khôi phục một lần cho máy đã kiểm tra, chỉ chạy sau khi đã sao lưu và cài ZIP; không nằm trong module.
+
+Xem [phân tích lỗi và kết quả kiểm tra](docs/BUG_ANALYSIS.md). Tương thích ROM khác cần kiểm tra trên thiết bị thực tế; không có cam kết đã test mọi phiên bản ColorOS/OxygenOS/Realme UI.

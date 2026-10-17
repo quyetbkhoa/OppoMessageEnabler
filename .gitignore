@@ -1,4 +1,7 @@
 *.zip
+*.zip.sha256
 *.log
 .DS_Store
 Thumbs.db
+diagnostics/
+__pycache__/

@@ -1,6 +1,6 @@
 id=oppo_messages_enabler
 name=Oppo Messages Enabler
-version=v1.0.1
-versionCode=101
+version=v1.0.3
+versionCode=202
 author=quyetbkhoa
-description=Kích hoạt Oppo Messages gốc trên ColorOS/OxygenOS/Realme UI. Unblock com.android.mms từ app_v2.xml, nạp trực tiếp Mms gốc từ ROM, đặt làm SMS mặc định, vô hiệu hóa Google Messages. Đã test thành công trên OnePlus 15 ROM IN 16.0.1.60x.
+description=Chỉ mở chặn Oppo Messages (com.android.mms) và Mind Pilot (com.oplus.aiassistant) trên cấu hình gốc từng phân vùng. Không tắt ứng dụng, giữ nguyên các quy tắc ROM khác và hồ sơ nhân bản.

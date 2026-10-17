@@ -1,16 +1,28 @@
 #!/system/bin/sh
 MODDIR="${0%/*}"
 
-# 1. Bind-mount modified app_v2.xml over any existing app_v2.xml partition path
-for target in /my_stock/etc/config/app_v2.xml /my_product/etc/config/app_v2.xml /my_heytap/etc/config/app_v2.xml /odm/etc/config/app_v2.xml; do
-    if [ -f "$MODDIR/app_v2.xml" ] && [ -f "$target" ]; then
-        mount --bind "$MODDIR/app_v2.xml" "$target"
-    fi
-done
+umask 077
+WORK="$MODDIR/generated"
+mkdir -p "$WORK" || exit 1
+exec 2>"$WORK/boot.log"
 
-# 2. Bind-mount modified feature_rsa default app config over any matching targets
-for target in /my_product/etc/extension/feature_rsa*.xml /my_stock/etc/extension/feature_rsa*.xml; do
-    if [ -f "$MODDIR/feature_rsa4.0_t3_default_app.xml" ] && [ -f "$target" ]; then
-        mount --bind "$MODDIR/feature_rsa4.0_t3_default_app.xml" "$target"
+# Derive each overlay from THAT partition's current ROM, including after OTA.
+# Never overlay feature_rsa: the SMS role is assigned after boot.
+for partition in my_stock my_product my_heytap odm; do
+    target="/$partition/etc/config/app_v2.xml"
+    [ -f "$target" ] || continue
+    output="$WORK/$partition-app_v2.xml"
+    if awk -f "$MODDIR/patch-app-config.awk" "$target" > "$output.tmp"; then
+        chmod 0644 "$output.tmp" || continue
+        context="$(ls -Zd "$target" | awk '{print $1}')"
+        [ -n "$context" ] && chcon "$context" "$output.tmp" || {
+            echo "Cannot preserve SELinux context: $target" >&2
+            continue
+        }
+        mv -f "$output.tmp" "$output" || continue
+        mount --bind "$output" "$target" || echo "Bind failed: $target" >&2
+    else
+        # Unchanged or unsupported XML must never be mounted.
+        rm -f "$output.tmp"
     fi
 done
